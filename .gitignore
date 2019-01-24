@@ -1,2 +1,6 @@
 *.out
 *.DS_Store
+*.aux
+*.log
+*.synctex.gz
+*.pdf
