@@ -14,5 +14,38 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\section{Program vs Process}
+\large
+\begin{itemize}
+	\item A program is a set of instructions whereas when a program is executed, it is known as a process.
+	\item A program is a passive entity whereas a process is an active entity.
+	\item A program is stored on the disk in some file and does not require any other resources whereas a process holds resources such as CPU, memory addresses, disk, I/O, etc.
+	\item There is no one-to-one mapping between programs and processes. One program can invoke multiple processes.
+\end{itemize}
 
+\section{Physical address space vs Virtual address space}
+\begin{itemize}
+	\item The physical address space refers to the hardware addresses of the physical memory whereas Virtual address space refers to the logical addresses provided by the OS kernel.
+	\item There is only one physical address space per machine. On the other hand, there is one virtual address space per process.
+	\item The valid physical address space is between 0 and some machine-specific maximum. But, the virtual address space may not necessarily start at 0, also it may consist of several segments (i.e, have gaps).
+	\item The physical and virtual address spaces are independent. Only the portion of address space that processes do use is loaded into physical memory at a time. 
+\end{itemize}
+
+\section{Device controller vs Device driver}
+\begin{itemize}
+	\item A device controller is a hardware component that works as a bridge between the hardware device and the operating system or an application program. On the other hand, a device driver is a software program that works as the interface for the device controller to communicate with the OS or an application program.
+	\item A device controller is a part of the computer system that makes sense of the signals going to and coming from the CPU. On the other hand, a device driver is a computer program that operates or controls a particular type of device that is attached to the computer.
+	\item The major difference between a device driver and device controller is that the device driver works as a translator between the hardware device and the application or the OS that uses it. On the other hand, the device controller converts a serial bit stream to block of bytes and perform error correction as required.
+	\item A device driver is specific to an OS and it is hardware dependent. On the other hand, the device controller is a circuit board between the device and the OS.
+\end{itemize}
+
+\section{Kernel mode vs User mode}
+A processor has two different modes - user mode and the kernel mode.
+\begin{itemize}
+	\item Applications run in user mode and the core OS components run in the kernel mode.
+	\item In kernel mode, the executing code has complete and unrestricted access to the underlying hardware. On the other hand, in user mode, the executing code has no ability to directly access hardware or reference memory.
+	\item If a kernel-mode driver crashes, the entire OS crashes, but crashes in the user mode are always recoverable.
+	\item The transition from user mode to kernel mode occurs when the application requests the help of OS or an interrupt or a system call occurs.
+	\item The mode bit is set to 1 in the user mode and 0 in the kernel mode.
+\end{itemize}
 \end{document}
