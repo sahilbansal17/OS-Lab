@@ -69,6 +69,14 @@ void bfs_tree(char *path[], int count, int level) {
 					strcat(next_level[current], "/");
 					strcat(next_level[current], de->d_name);
 					current ++;
+
+					char *disp;
+					disp = (char *)malloc(sizeof(char) * (strlen(path[i]) + 1 + strlen(de->d_name)));
+					strcat(disp, path[i]);
+					strcat(disp, "/");
+					strcat(disp, de->d_name);
+					print_file(disp, level);
+
 				}
 				else {
 					char *disp;

@@ -14,7 +14,7 @@ int main (int argc, char **argv) {
 	else if (rc == 0) {
 		printf("Hello, I am child (pid:%d)\n", (int) getpid());
 		char *myargs[3];
-		myargs[0] = strdup("/bin/csh");
+		myargs[0] = strdup("ls");
 		// myargs[1] = strdup("a");
 		myargs[1] = NULL;
 		myargs[2] = NULL;
