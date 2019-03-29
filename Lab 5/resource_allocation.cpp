@@ -5,7 +5,8 @@ using namespace std;
 
 #define MAX 100
 
-vector <int> max_resources, available, results;
+int result_ct = 0;
+vector <int> max_resources, available, results[100];
 class Process{
 	// private:
 	public:
@@ -50,6 +51,7 @@ class Process{
 vector <Process> p(MAX);
 
 bool solve (int cur, int total, vector <bool> done, vector <int> avl, vector <int> q) {
+	// cout << "Call stack: " << cur << " : " << total << endl;
 	bool all_done = 1;
 	for (int i = 0; i < done.size(); i ++) {
 		if (done[i] == 0) {
@@ -57,15 +59,15 @@ bool solve (int cur, int total, vector <bool> done, vector <int> avl, vector <in
 		}
 	}
 	if (all_done == 1) {
-		cout << "The initial allocation is SAFE.\nOne of the possible allocation is:\n";
 		for (int i = 0; i < q.size(); i ++) {
-			results.push_back(q[i]);
-			cout << q[i] << " ";
+			results[result_ct].push_back(q[i]);
+			// cout << "P" << q[i] << "\n";
 		}
-		cout << endl;
+		result_ct ++;
 		return 1;
 	}
 
+	bool found = 0;
 	for (int i = 0; i < total; i ++) {
 		if (!done[i]) {
 			vector <int> req = p[i].required(), next;
@@ -91,7 +93,8 @@ bool solve (int cur, int total, vector <bool> done, vector <int> avl, vector <in
 					// 	}
 					// 	cerr << endl;
 					// }
-					return 1;
+					found = 1;
+					q.pop_back();
 				}
 				else {
 					q.pop_back();
@@ -100,7 +103,7 @@ bool solve (int cur, int total, vector <bool> done, vector <int> avl, vector <in
 		}
 	}
 
-	return 0;
+	return found;
 }
 
 int main(int argc, char **argv) {
@@ -179,6 +182,17 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
+	cout << "The initial allocation is SAFE.\n\n";
+	// print all possible allocations
+	cout << "All possible allocations are: \n";
+	for (int i = 0; i < result_ct; i ++) {
+		cout << "Allocation " << i + 1 << " : ";
+		for (int j = 0; j < results[i].size(); j ++) {
+			cout << results[i][j] << " ";
+		}
+		cout << endl;
+	}
+
 	//*/
 	cout << "\nNo. of allocated resources initially:\n";
 	for (int i = 0; i < used.size(); i ++) {
@@ -195,6 +209,8 @@ int main(int argc, char **argv) {
 	cout << endl << endl;
 	//*/
 
+	cout << "Considering allocation 1: " << endl << endl;
+
 	printf("\t\t\t");
 	for (int k = 0; k < num_resource; k ++) {
 		printf("---Res[%d]---", k + 1);
@@ -206,8 +222,8 @@ int main(int argc, char **argv) {
 	}
 	cout << endl;
 
-	for (int i = 0; i < results.size(); i ++) {
-		int j = results[i];
+	for (int i = 0; i < results[0].size(); i ++) {
+		int j = results[0][i];
 
 		cout << "Process " << j ;
 		vector <int> req = p[j].required();

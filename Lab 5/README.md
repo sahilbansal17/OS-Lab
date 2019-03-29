@@ -15,3 +15,11 @@ Some sample input files have been provided in the [testCases](testCases/) folder
 - To remove the executables formed:
 
 		$ make clean
+
+### Reader Writer's problem
+Solution using shared memory
+
+1. Reader's preference solution
+
+		$ make
+		$ ./solution_1 < no. of writers > < no. of readers >
