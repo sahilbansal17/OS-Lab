@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 		    }
 			// child process, i.e. reader	
 			sem_wait(&rmutex);
-			*readcount ++;
+			(*readcount) ++;
 			if (*readcount == 1) {
 				sem_wait(&resource);
 				printf("\n\n------First reader------\n\n");
@@ -84,12 +84,12 @@ int main(int argc, char **argv) {
 			// reading process
 			// sleep for random time
 			int sleep_time = 1 + (rand() % 3);
-			printf("\t\tReader %d is reading for %d seconds.\n\n", reader_no, sleep_time);
-			sleep(sleep_time);
+			printf("\t\tReader %d (readcount: %d) is reading for %d seconds.\n\n", reader_no, *readcount, sleep_time);
+			// sleep(sleep_time);
 
 			sem_wait(&rmutex);
-			*readcount --;
-			if (*readcount == 0) {
+			(*readcount) --;
+			if ((*readcount) == 0) {
 				printf("\n\n------Last reader------\n\n");
 				sem_post(&resource);
 			}
@@ -98,6 +98,10 @@ int main(int argc, char **argv) {
 
 			// finished reader process, exit
 			exit(0);
+		}
+		else {
+			int sleep_time = 1 + (rand() % 3);
+			sleep(sleep_time);
 		}
 	}
 
