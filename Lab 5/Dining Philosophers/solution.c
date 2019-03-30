@@ -9,26 +9,41 @@ int N; // number of philosophers
 #define KGRN  "\x1B[32m"
 #define KNRM  "\x1B[0m"
 
-sem_t chopstick[MAX];
+int chopstick_done[MAX];
 
-
+sem_t lock;
 // dining philosopher's problem
 // solution 1: each philosophper tries to acquire two chopsticks
 void *philosopher_solution_1(void* id) {
 	int no = (int) id;
 	// acquire both the chopsticks
-	sem_wait(&chopstick[no]);
-	// sleep(1);
-	printf("Philosopher %d ---- picks up left chopstick %d\n", no, no);
-	sem_wait(&chopstick[(no + 1)%N]);
-	// sleep(1);
-	printf("Philosopher %d ---- picks up right chopstick %d\n", no, (no + 1)%N);
-	printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
-	sleep(1);
-	printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
-	// release both the chopsticks
-	sem_post(&chopstick[no]);
-	sem_post(&chopstick[(no + 1)%N]);
+	while (1) {
+		sem_wait(&lock);
+		// printf("--------id: %d\n", no);
+		// for(int i=0; i < 5; i++)
+		// 	printf("%d  ", chopstick_done[i]);
+		// printf("\n");
+
+		if ((chopstick_done[no] == 0) && (chopstick_done[(no + 1) % N] == 0)) {
+			chopstick_done[no] = 1;
+			chopstick_done[(no + 1) % N] = 1;
+			sem_post(&lock);
+			printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
+			
+			sleep(1);
+
+			sem_wait(&lock);
+
+			chopstick_done[no] = 0;
+			chopstick_done[(no + 1) % N] = 0;
+
+			sem_post(&lock);
+			printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
+		}
+		else {
+			sem_post(&lock);
+		}
+	}
 }
 
 // solution 2:
@@ -36,23 +51,34 @@ void *philosopher_solution_1(void* id) {
 void *philosopher_solution_2(void* id) {
 	int no = (int) id;
 
-	// acquire the left chopstick
-	sem_wait(&chopstick[no]);
-	sleep(1);
-	printf("Philosopher %d ---- picks up left chopstick %d\n", no, no);
-	
-	// acquire the right chopstick
-	sem_wait(&chopstick[(no + 1)%N]);
-	
-	printf("Philosopher %d ---- picks up right chopstick %d\n", no, (no + 1)%N);
-	printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
-	sleep(1);
-	printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
-	
-	// release both the chopsticks
-	sem_post(&chopstick[no]);
-	sem_post(&chopstick[(no + 1)%N]);
+	while (1) {
+		sem_wait(&lock);
+		// acquire the left chopstick
+		if (!chopstick_done[no]) {
+			chopstick_done[no] = 1;
+			// acquire the right chopstick
+			if (!chopstick_done[(no + 1) % N]) {
+				chopstick_done[(no + 1) % N] = 1;
+			}
+			else {
+				sem_post(&lock);
+				printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
+			
+				sleep(1);
 
+				sem_wait(&lock);
+
+				chopstick_done[no] = 0;
+				chopstick_done[(no + 1) % N] = 0;
+
+				sem_post(&lock);
+				printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
+			}
+		}
+		else {
+			sem_post(&lock);
+		}
+	}
 }
 
 // solution 3:
@@ -61,20 +87,31 @@ sem_t pcount;
 void *philosopher_solution_3(void* id) {
 	int no = (int) id;
 
-	sem_wait(&pcount);
-	// acquire both the chopsticks
-	sem_wait(&chopstick[no]);
-	printf("Philosopher %d ---- picks up left chopstick %d\n", no, no);
-	sem_wait(&chopstick[(no + 1) % N]);
-	printf("Philosopher %d ---- picks up right chopstick %d\n", no, (no + 1)%N);
-	printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
-	sleep(1);
-	printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
-	// release both the chopsticks
-	sem_post(&chopstick[no]);
-	sem_post(&chopstick[(no + 1)%N]);
+	while (1) {
+		sem_wait(&lock);
+		// acquire both the chopsticks
+		if (!chopstick_done[no] && !chopstick_done[(no + 1) % N]) {
+			chopstick_done[no] = 1;
+			chopstick_done[(no + 1) % N] = 1;
+			sem_post(&lock);
+			sem_wait(&pcount);
+			printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
+		
+			sleep(1);
 
-	sem_post(&pcount);
+			sem_wait(&lock);
+
+			chopstick_done[no] = 0;
+			chopstick_done[(no + 1) % N] = 0;
+
+			sem_post(&lock);
+			printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
+			sem_post(&pcount);
+		}
+		else {
+			sem_post(&lock);
+		}
+	}
 }
 
 // solution 4
@@ -82,34 +119,18 @@ void *philosopher_solution_3(void* id) {
 void *philosopher_solution_4(void* id) {
 	int no = (int) id;
 
-	int left = no;
-	int right = (no + 1) % N;
-	if (left < right) {
-		sem_wait(&chopstick[left]);
-		printf("Philosopher %d ---- picks up left chopstick %d\n", no, no);
-		sem_wait(&chopstick[right]);
-		printf("Philosopher %d ---- picks up right chopstick %d\n", no, (no + 1)%N);
-		printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
-		sleep(1);
-		printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
-		// release both the chopsticks
-		sem_post(&chopstick[right]);
-		sem_post(&chopstick[left]);
-	}
-	else {
-		sem_wait(&chopstick[right]);
-		printf("Philosopher %d ---- picks up right chopstick %d\n", no, (no + 1)%N);
-		sem_wait(&chopstick[left]);
-		printf("Philosopher %d ---- picks up left chopstick %d\n", no, no);
-		printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
-		sleep(1);
-		printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
-		// release both the chopsticks
-		sem_post(&chopstick[left]);
-		sem_post(&chopstick[right]);
+	while (1) {
+		sem_wait(&lock);
+		int left = no;
+		int right = (no + 1) % N;
+		// acquire the lower chopstick
+		if (left < right) {
+
+		}		
 	}
 }
 
+sem_t chopstick[MAX];
 // solution 5:
 // all odd numbered philosopher try to pick left chopstick and then right,
 // even numbered philosopher try to pick right chopstick and then left
@@ -185,7 +206,7 @@ int main (int argc, char **argv) {
 
 	int sol_no = atoi(argv[1]);
 	N = atoi(argv[2]);
-
+	printf("Number of philosphers: %d\n",N);
 	pthread_t p[N]; // philosopher threads
 
 	// initialize semaphore for the chopsticks
@@ -199,7 +220,12 @@ int main (int argc, char **argv) {
 
 	sem_init(&pcount, 0, 4); // restricting to 4 philosphers
 	sem_init(&mutex, 0, 1);
+	sem_init(&lock, 0, 1);
 	// create threads for philosophers
+
+	for (int i = 0; i < N; i ++) {
+		chopstick_done[i] = 0;
+	}
 
 	switch(sol_no) {
 		case 1:

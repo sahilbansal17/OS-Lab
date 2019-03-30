@@ -92,50 +92,37 @@ int main() {
 
         for (int i = 0; i < 20; i++) {
             *p1_wants_to_enter = 1;
-            while (*p2_wants_to_enter == 1) {
-                // printf("1: p1_wants_to_enter:%d p2_wants_to_enter:%d\n", *p1_wants_to_enter, *p2_wants_to_enter);
-                if (*favoured == 2) {
-                    *p1_wants_to_enter = 0;
-                    while (*favoured == 2)
-                        ;
+            *favoured = 2;
+            while (*p2_wants_to_enter && *favoured == 2) ;
 
-                    // printf("1 wait for %f seconds\n", k);
-                    *p1_wants_to_enter = 1;
-                }
-            }
+
             // Wait
 
             // Critical Section Begin
+            int sleep_time = 1 + (rand() % 3);
+            sleep(sleep_time);
             *shared = *shared + 1;
-
-            sleep(1);
             printf("[%d] First: Critical Section (%2d).\n", i + 1, *shared);
 
-            *favoured = 2;
             *p1_wants_to_enter = 0;
         }
-    } else {
+    }
+    else {
         // Create second (child) process
         if (fork() == 0) {
             // This is the code second process executes
 
             for (int i = 0; i < 20; i++) {
                 *p2_wants_to_enter = 1;
-                while (*p1_wants_to_enter == 1) {
-                    if (*favoured == 1) {
-                        *p2_wants_to_enter = 0;
-                        while (*favoured == 1)
-                            ;
-                        *p2_wants_to_enter = 1;
-                    }
-                }
+                *favoured = 1;
+                while (*p1_wants_to_enter && *favoured == 1);
                 // Wait
 
                 // Critical Section Begin
                 *shared = *shared + 1;
-                sleep(1);
+                int sleep_time = 1 + (rand() % 3);
+                sleep(sleep_time);
                 printf("[%d] Second: Critical Section (%2d).\n", i + 1, *shared);
-                *favoured = 1;
                 *p2_wants_to_enter = 0;
             }
 
