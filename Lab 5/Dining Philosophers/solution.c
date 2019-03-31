@@ -53,14 +53,16 @@ void *philosopher_solution_2(void* id) {
 
 	while (1) {
 		sem_wait(&lock);
+		// printf("--------id: %d\n", no);
+		// for(int i = 0; i < 5; i ++)
+		// 	printf("%d  ", chopstick_done[i]);
+		// printf("\n");
 		// acquire the left chopstick
 		if (!chopstick_done[no]) {
 			chopstick_done[no] = 1;
 			// acquire the right chopstick
 			if (!chopstick_done[(no + 1) % N]) {
 				chopstick_done[(no + 1) % N] = 1;
-			}
-			else {
 				sem_post(&lock);
 				printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
 			
@@ -73,6 +75,9 @@ void *philosopher_solution_2(void* id) {
 
 				sem_post(&lock);
 				printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
+			}
+			else {
+				sem_post(&lock);
 			}
 		}
 		else {
@@ -125,12 +130,61 @@ void *philosopher_solution_4(void* id) {
 		int right = (no + 1) % N;
 		// acquire the lower chopstick
 		if (left < right) {
+			if (!chopstick_done[left]) {
+				chopstick_done[left] = 1;
+				// acquire the higher chopstick
+				if (!chopstick_done[right]) {
+					chopstick_done[right] = 1;
+					sem_post(&lock);
+					printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
+					sleep(1);
 
-		}		
+					sem_wait(&lock);
+
+					chopstick_done[no] = 0;
+					chopstick_done[(no + 1) % N] = 0;
+
+					sem_post(&lock);
+					printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
+				}
+				else {
+					sem_post(&lock);
+				}
+			}
+			else {
+				sem_post(&lock);
+			}
+		}	
+		else {
+			// acquire the lower chopstick
+			if (!chopstick_done[right]) {
+				chopstick_done[right] = 1;
+				// acquire the higher chopstick
+				if (!chopstick_done[left]) {
+					chopstick_done[left] = 1;
+					sem_post(&lock);
+					printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
+					sleep(1);
+
+					sem_wait(&lock);
+
+					chopstick_done[no] = 0;
+					chopstick_done[(no + 1) % N] = 0;
+
+					sem_post(&lock);
+					printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
+				}
+				else {
+					sem_post(&lock);
+				}
+			}
+			else {
+				sem_post(&lock);
+			}
+		}	
 	}
 }
 
-sem_t chopstick[MAX];
 // solution 5:
 // all odd numbered philosopher try to pick left chopstick and then right,
 // even numbered philosopher try to pick right chopstick and then left
@@ -140,55 +194,75 @@ void *philosopher_solution_5(void* id) {
 	int left = no;
 	int right = (no + 1) % N;
 
-	if (no & 1) {
-		// odd philospher
-		sem_wait(&chopstick[left]);
-		printf("Philosopher %d ---- picks up left chopstick %d\n", no, no);
-		sem_wait(&chopstick[right]);
-		printf("Philosopher %d ---- picks up right chopstick %d\n", no, (no + 1)%N);
-		printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
-		sleep(1);
-		printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
-		// release both the chopsticks
-		sem_post(&chopstick[right]);
-		sem_post(&chopstick[left]);
-	}
-	else {
-		// even philosopher
-		sem_wait(&chopstick[right]);
-		printf("Philosopher %d ---- picks up right chopstick %d\n", no, (no + 1)%N);
-		sem_wait(&chopstick[left]);
-		printf("Philosopher %d ---- picks up left chopstick %d\n", no, no);
-		printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
-		sleep(1);
-		printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
-		// release both the chopsticks
-		sem_post(&chopstick[left]);
-		sem_post(&chopstick[right]);
+	while (1) {
+		sem_wait(&lock);
+
+		if (no & 1) {
+			// odd no philosopher
+			// first the left chopstick
+			if (!chopstick_done[left]) {
+				chopstick_done[left] = 1;
+				// acquire the right chopstick
+				if (!chopstick_done[right]) {
+					chopstick_done[right] = 1;
+					sem_post(&lock);
+					printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
+				
+					sleep(1);
+
+					sem_wait(&lock);
+
+					chopstick_done[no] = 0;
+					chopstick_done[(no + 1) % N] = 0;
+
+					sem_post(&lock);
+					printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
+				}
+				else {
+					sem_post(&lock);
+				}
+			}
+			else {
+				sem_post(&lock);
+			}
+		}
+		else {
+			// even no philosopher
+			// first the right chopstick
+			if (!chopstick_done[right]) {
+				chopstick_done[right] = 1;
+				// acquire the left chopstick
+				if (!chopstick_done[left]) {
+					chopstick_done[left] = 1;
+					sem_post(&lock);
+					printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
+				
+					sleep(1);
+
+					sem_wait(&lock);
+
+					chopstick_done[no] = 0;
+					chopstick_done[(no + 1) % N] = 0;
+
+					sem_post(&lock);
+					printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
+				}
+				else {
+					sem_post(&lock);
+				}
+			}
+			else {
+				sem_post(&lock);
+			}
+		}
 	}
 }
 
 // solution 6:
 // solution using arbitrator (philosopher needs to request an arbitrator for chopstick).
-sem_t mutex;
 void *philosopher_solution_6(void* id) {
 	int no = (int) id;
-	// request permission from arbitrator
-	sem_wait(&mutex);
-	// acquire both the chopsticks
-	sem_wait(&chopstick[no]);
-	// sleep(1);
-	printf("Philosopher %d ---- picks up left chopstick %d\n", no, no);
-	sem_wait(&chopstick[(no + 1)%N]);
-	// sleep(1);
-	printf("Philosopher %d ---- picks up right chopstick %d\n", no, (no + 1)%N);
-	printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
-	sleep(1);
-	printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
-	// release both the chopsticks
-	sem_post(&chopstick[no]);
-	sem_post(&chopstick[(no + 1)%N]);
-	sem_post(&mutex);
+	
 }
 
 // solution 7:
@@ -204,29 +278,24 @@ int main (int argc, char **argv) {
 		return 0;
 	}
 
+	// take arguments
 	int sol_no = atoi(argv[1]);
 	N = atoi(argv[2]);
 	printf("Number of philosphers: %d\n",N);
-	pthread_t p[N]; // philosopher threads
+	
+	// declare threads for philosophers
+	pthread_t p[N];
 
-	// initialize semaphore for the chopsticks
-	for (int i = 0; i < N; i ++) {
-		int retvalue = sem_init(&chopstick[i], 0, 1); // intialize with 1 becuase binary semaphore
-		if (retvalue == -1) {
-			perror("Semaphore initialization failed: ");
-			return 0;
-		}
-	}
-
+	// initialize semaphores
 	sem_init(&pcount, 0, 4); // restricting to 4 philosphers
-	sem_init(&mutex, 0, 1);
 	sem_init(&lock, 0, 1);
-	// create threads for philosophers
 
+	// set chopstick done to all zeroes
 	for (int i = 0; i < N; i ++) {
 		chopstick_done[i] = 0;
 	}
 
+	// create threads for philosophers
 	switch(sol_no) {
 		case 1:
 				for (int i = 0; i < N; i ++) {
@@ -293,16 +362,6 @@ int main (int argc, char **argv) {
 				break;
 	}
 
-	/*/
-	for (int i = 0; i < N; i ++) {
-		int retvalue = pthread_create(&p[i], NULL, philosopher, (void *)i);
-		if (retvalue != 0) {
-			perror("pthread creation error: ");
-			return 0;
-		}
-	}
-	//*/
-
 	// wait for threads to finish
 	for (int i = 0; i < N; i ++) {
 		int retvalue = pthread_join(p[i], NULL);
@@ -313,12 +372,8 @@ int main (int argc, char **argv) {
 	}
 
 	// destroy the semaphores
-	for (int i = 0; i < N; i ++) {
-		int retvalue = sem_destroy(&chopstick[i]);
-		if (retvalue == -1) {
-			perror("Semaphore destroy error: ");
-			return 0;
-		}
-	}
+	sem_destroy(&lock);
+	sem_destroy(&pcount);
+	
 	return 0;
 }
