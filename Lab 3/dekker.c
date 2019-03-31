@@ -9,6 +9,9 @@
 
 #define FIRST 1
 #define SECOND 2
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KNRM  "\x1B[0m"
 
 int shmID, // identifier for shared memory to store processNumber
     shrID; // identifier for shared memory to store shared value
@@ -86,11 +89,9 @@ int main() {
     *p2_wants_to_enter = 0;
     *favoured = 1;
 
-    // Create First (child) process
+    // first child process
     if (fork() == 0) {
-        // This is the code first process executes
-
-        for (int i = 0; i < 20; i++) {
+        while (1) {
             *p1_wants_to_enter = 1;
             while (*p2_wants_to_enter == 1) {
                 // printf("1: p1_wants_to_enter:%d p2_wants_to_enter:%d\n", *p1_wants_to_enter, *p2_wants_to_enter);
@@ -103,23 +104,21 @@ int main() {
                     *p1_wants_to_enter = 1;
                 }
             }
-            // Wait
 
             // Critical Section Begin
             *shared = *shared + 1;
 
             sleep(1);
-            printf("[%d] First: Critical Section (%2d).\n", i + 1, *shared);
+            printf("%sFirst: Critical Section. %d %s\n", KRED, *shared, KNRM);
 
             *favoured = 2;
             *p1_wants_to_enter = 0;
         }
-    } else {
-        // Create second (child) process
+    } 
+    else {
+        // second child process
         if (fork() == 0) {
-            // This is the code second process executes
-
-            for (int i = 0; i < 20; i++) {
+            while (1) {
                 *p2_wants_to_enter = 1;
                 while (*p1_wants_to_enter == 1) {
                     if (*favoured == 1) {
@@ -129,17 +128,17 @@ int main() {
                         *p2_wants_to_enter = 1;
                     }
                 }
-                // Wait
 
                 // Critical Section Begin
                 *shared = *shared + 1;
-                sleep(1);
-                printf("[%d] Second: Critical Section (%2d).\n", i + 1, *shared);
+                int sleep_time = 1 + (rand() % 3);
+                sleep(sleep_time);
+                printf("%sSecond: Critical Section. %d %s\n", KGRN, *shared, KNRM);
                 *favoured = 1;
                 *p2_wants_to_enter = 0;
             }
-
-        } else {
+        }
+        else {
             wait(NULL);
             wait(NULL);
         }

@@ -144,6 +144,7 @@ int main(int argc, char **argv) {
 
 				sem_post(mutex); // release the lock	
 				sem_post(full);
+				sleep(sleep_time);
 			}
 		}
 	}
@@ -176,9 +177,13 @@ int main(int argc, char **argv) {
 
 				sem_post(mutex); // release the lock
 				sem_post(empty);
+				sleep(sleep_time);
 			}
 		}
 	}
 
+	for (int i = 0; i < num_consumers + num_producers; i ++) {
+		wait(NULL);
+	}
 	return 0;
 }

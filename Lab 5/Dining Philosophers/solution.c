@@ -262,13 +262,40 @@ void *philosopher_solution_5(void* id) {
 // solution using arbitrator (philosopher needs to request an arbitrator for chopstick).
 void *philosopher_solution_6(void* id) {
 	int no = (int) id;
-	
+	// acquire both the chopsticks
+	while (1) {
+		sem_wait(&lock);
+		// printf("--------id: %d\n", no);
+		// for(int i=0; i < 5; i++)
+		// 	printf("%d  ", chopstick_done[i]);
+		// printf("\n");
+
+		if ((chopstick_done[no] == 0) && (chopstick_done[(no + 1) % N] == 0)) {
+			chopstick_done[no] = 1;
+			chopstick_done[(no + 1) % N] = 1;
+			sem_post(&lock);
+			printf("\t\t\t%sPhilosopher %d ---- begins eating%s\n", KGRN, no, KNRM);
+			
+			sleep(1);
+
+			sem_wait(&lock);
+
+			chopstick_done[no] = 0;
+			chopstick_done[(no + 1) % N] = 0;
+
+			sem_post(&lock);
+			printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
+		}
+		else {
+			sem_post(&lock);
+		}
+	}
 }
 
 // solution 7:
 // chandy mishra solution
 void *philosopher_solution_7(void* id) {
-
+	
 }
 
 int main (int argc, char **argv) {
