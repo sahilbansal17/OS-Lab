@@ -138,13 +138,13 @@ int main(int argc, char **argv) {
 				printf("The value PRODUCED is: %d\n", *val);
 				*filled = (*filled + 1) % BUFFER_SIZE;
 				// sleep for random time
-				int sleep_time = 1 + (rand() % 3);
+				int sleep_time = 1;
 				printf("Producer %d waiting for %d seconds.\n\n", producer_no + 1, sleep_time);
 				// sleep(sleep_time);
 
 				sem_post(mutex); // release the lock	
 				sem_post(full);
-				sleep(sleep_time);
+				sleep(1);
 			}
 		}
 	}
@@ -171,13 +171,13 @@ int main(int argc, char **argv) {
 				printf("\t\t\t\tThe value consumed is: %d\n", tmp);
 
 				// sleep for random time
-				int sleep_time = 1 + (rand() % 3);
+				int sleep_time = 2;
 				printf("\t\t\t\tConsumer %d waiting for %d seconds.\n\n", consumer_no + 1, sleep_time);
 				// sleep(sleep_time);
 
 				sem_post(mutex); // release the lock
 				sem_post(empty);
-				sleep(sleep_time);
+				sleep(2);
 			}
 		}
 	}

@@ -40,8 +40,9 @@ void *process(void *process_id) {
 		}
 		// critical section
 		printf("Process %d in the critical section\n", x);
-		sleep(1);
 		tickets[x] = 0;
+		int sleep_time = 1 + (rand() % 10);
+		sleep(sleep_time);
 	}
 }
 

@@ -148,6 +148,7 @@ void *philosopher_solution_4(void* id) {
 					printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
 				}
 				else {
+					chopstick_done[left] = 0;
 					sem_post(&lock);
 				}
 			}
@@ -175,6 +176,7 @@ void *philosopher_solution_4(void* id) {
 					printf("\t\t\t%sPhilosopher %d ---- ends eating%s\n", KRED, no, KNRM);
 				}
 				else {
+					chopstick_done[right] = 0;
 					sem_post(&lock);
 				}
 			}
